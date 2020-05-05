@@ -1,30 +1,37 @@
 import numpy
 import click
 from PIL import Image
+from multiprocessing.pool import Pool
 
 @click.group()
 def main():
     """
-    CLI for generating a fake dataset of various total capacities at different resolutions
+    CLI for generating a fake dataset of various quantities at different resolutions. Supports .jpg for now.
     """
     pass
 
 @main.command()
 @click.option('--path', required=True)
 @click.option('--name', required=True)
-@click.option('--width', required=True)
-@click.option('--height', required=True)
-@click.option('--count', required=True)
-@click.option('--seed')
+@click.option('--width', default=1920, required=True)
+@click.option('--height', default=1080, required=True)
+@click.option('--count', default=1, required=True)
+@click.option('--seed', default=0)
 def create(path, name, width, height, count, seed):
-    click.echo("Creating {} files located at {} of {}x{} resolution with a base filename of {}".format(count, path, width, height, name))
+    click.echo("Creating {} JPEG files located at {} of {}x{} resolution with a base filename of {}".format(count, path, width, height, name))
    
-    numpy.random.RandomState(seed=0)
+    numpy.random.RandomState(seed=seed)
 
-    for n in xrange(int(count)):
-        a = numpy.random.rand(int(height),int(width),3) * 255
-        im_out = Image.fromarray(a.astype('uint8')).convert('RGB')
-        im_out.save('%s%s%d.jpg' % (path, name, n))
+    #Expected to yield a thread pool equivalent to the number of CPU cores in the system
+    pool = Pool()
+    result = pool.starmap(imageCreation, ((path, name, width, height, count, n) for n in range(count)))
+
+
+def imageCreation(path, name, width, height, count, n):
+    a = numpy.random.rand(height,width,3) * 255
+    im_out = Image.fromarray(a.astype('uint8')).convert('RGB')
+    im_out.save('%s%s%d.jpg' % (path, name, n))
+    return
 
 if __name__ == "__main__":
     main()
