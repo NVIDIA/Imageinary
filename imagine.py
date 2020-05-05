@@ -21,19 +21,18 @@ def main():
 def create(path, name, width, height, count, seed):
     click.echo("Creating {} JPEG files located at {} of {}x{} resolution with a base filename of {}".format(count, path, width, height, name))
    
-    numpy.random.RandomState(seed=seed)
-
     start_time = perf_counter()
 
     #Expected to yield a thread pool equivalent to the number of CPU cores in the system
     pool = Pool()
-    result = pool.starmap(imageCreation, ((path, name, width, height, count, n) for n in range(count)))
+    result = pool.starmap(imageCreation, ((path, name, width, height, seed, n) for n in range(count)))
 
     stop_time = perf_counter()
     
     click.echo("Created {} files in {} seconds".format(count, stop_time-start_time))
 
-def imageCreation(path, name, width, height, count, n):
+def imageCreation(path, name, width, height, seed, n):
+    numpy.random.seed(seed + n)
     a = numpy.random.rand(height,width,3) * 255
     im_out = Image.fromarray(a.astype('uint8')).convert('RGB')
     im_out.save('%s%s%d.jpg' % (path, name, n))
