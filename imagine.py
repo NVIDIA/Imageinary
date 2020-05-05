@@ -2,6 +2,7 @@ import numpy
 import click
 from PIL import Image
 from multiprocessing.pool import Pool
+from time import perf_counter
 
 @click.group()
 def main():
@@ -22,10 +23,15 @@ def create(path, name, width, height, count, seed):
    
     numpy.random.RandomState(seed=seed)
 
+    start_time = perf_counter()
+
     #Expected to yield a thread pool equivalent to the number of CPU cores in the system
     pool = Pool()
     result = pool.starmap(imageCreation, ((path, name, width, height, count, n) for n in range(count)))
 
+    stop_time = perf_counter()
+    
+    click.echo("Created {} files in {} seconds".format(count, stop_time-start_time))
 
 def imageCreation(path, name, width, height, count, n):
     a = numpy.random.rand(height,width,3) * 255
