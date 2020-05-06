@@ -25,9 +25,9 @@ def create(path, name, width, height, count, seed):
     combined_path = os.path.join(path, name)
 
     #Expected to yield a thread pool equivalent to the number of CPU cores in the system
-    pool = Pool()
-    start_time = perf_counter()
-    result = pool.starmap(imageCreation, ((combined_path, width, height, seed, n) for n in range(count)))
+    with Pool() as pool:
+        start_time = perf_counter()
+        pool.starmap(imageCreation, ((combined_path, width, height, seed, n) for n in range(count)))
 
     stop_time = perf_counter()
     
