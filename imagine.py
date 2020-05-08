@@ -60,8 +60,13 @@ def create_tfrecords(source_path, dest_path, name, img_per_file):
             writer = tf.io.TFRecordWriter(combined_path + str(record))
         image_path = os.path.join(source_path, image_name)
         image = open(image_path, "rb").read()
-        tfrecord_entry = tf.train.Example(features=tf.train.Features(feature={"image/encoded": tf.train.Feature(bytes_list=tf.train.BytesList(value=[image])),
-                                            "image/class/label": tf.train.Feature(int64_list=tf.train.Int64List(value=[0]))}))
+
+        feature = {
+            'image/encoded': tf.train.Feature(bytes_list=tf.train.BytesList(value=[image])),
+            'image/class/label': tf.train.Feature(int64_list=tf.train.Int64List(value=[0]))
+        }
+
+        tfrecord_entry = tf.train.Example(features=tf.train.Features(feature=feature))
         writer.write(tfrecord_entry.SerializeToString())
     
     writer.close()
