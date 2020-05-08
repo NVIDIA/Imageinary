@@ -4,4 +4,4 @@ Python3 is required, and this leverages numpy, click, PIL, and multiprocessing.p
 
 A basic run to create 10000 4K images:
 
-python3 imagine.py create --path /mnt/nvme/ --name big_image --width 3840 --height 2160 --count 10000
+python3 imagine.py create_jpegs --path /mnt/nvme/ --name big_image --width 3840 --height 2160 --count 10000
