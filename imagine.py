@@ -19,16 +19,17 @@ def main():
 @click.option('--width', default=1920, required=True)
 @click.option('--height', default=1080, required=True)
 @click.option('--count', default=1, required=True)
+@click.option('--image_format', default='png', required=True)
 @click.option('--seed', default=0)
-def create_jpegs(path, name, width, height, count, seed):
-    click.echo("Creating {} JPEG files located at {} of {}x{} resolution with a base filename of {}".format(count, path, width, height, name))
+def create_images(path, name, width, height, count, image_format, seed):
+    click.echo("Creating {} {} files located at {} of {}x{} resolution with a base filename of {}".format(count, image_format, path, width, height, name))
 
     combined_path = os.path.join(path, name)
 
     #Expected to yield a thread pool equivalent to the number of CPU cores in the system
     with Pool() as pool:
         start_time = perf_counter()
-        pool.starmap(image_creation, ((combined_path, width, height, seed, n) for n in range(count)))
+        pool.starmap(image_creation, ((combined_path, width, height, seed, image_format, n) for n in range(count)))
 
     stop_time = perf_counter()
     
@@ -74,11 +75,23 @@ def create_tfrecords(source_path, dest_path, name, img_per_file):
 
     click.echo("Completed in {} seconds".format(stop_time-start_time))
 
-def image_creation(combined_path, width, height, seed, n):
+def image_creation(combined_path, width, height, seed, image_format, n):
+    supportedImageFormats = {"jpg":"jpg", "JPG":"jpg", "jpeg":"jpg", "JPEG":"jpg",\
+                             "bmp":"bmp", "BMP":"bmp", "bitmap":"bmp", "BITMAP":"bmp",\
+                             "png":"png", "PNG":"png"}
     numpy.random.seed(seed + n)
+    fileExt = None
     a = numpy.random.rand(height,width,3) * 255
-    im_out = Image.fromarray(a.astype('uint8')).convert('RGB')
-    im_out.save('%s%d.jpg' % (combined_path, n))
+    if image_format in supportedImageFormats.keys():
+        fileExt = supportedImageFormats[image_format]
+    else:
+        fileExt = "png"
+    if fileExt == "jpg":
+        im_out = Image.fromarray(a.astype('uint8')).convert('RGB')
+    else:
+        im_out = Image.fromarray(a.astype('uint8')).convert('RGBA')
+
+    im_out.save('%s%d.%s' % (combined_path, n, fileExt))
     return
 
 if __name__ == "__main__":
