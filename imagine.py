@@ -1,10 +1,12 @@
-import os
+import os, re
 import numpy
 import click
 import tensorflow as tf
+import mxnet as mx
 from PIL import Image
 from multiprocessing.pool import Pool
 from time import perf_counter
+from math import ceil
 
 @click.group()
 def main():
@@ -32,8 +34,33 @@ def create_images(path, name, width, height, count, image_format, seed):
         pool.starmap(image_creation, ((combined_path, width, height, seed, image_format, n) for n in range(count)))
 
     stop_time = perf_counter()
-    
+
     click.echo("Created {} files in {} seconds".format(count, stop_time-start_time))
+
+@main.command()
+@click.option('--source_path', required=True)
+@click.option('--dest_path', required=True)
+@click.option('--name', required=True)
+@click.option('--img_per_file', default=1000)
+def create_recordio(source_path, dest_path, name, img_per_file):
+    print ("Creating RecordIO files at {} from {} targeting {} files per record with a base filename of {}".format(dest_path, source_path, img_per_file, name))
+    image_files = []
+    source_path = os.path.abspath(source_path)
+    dest_path = os.path.abspath(dest_path)
+    
+    for image_name in os.listdir(source_path):
+        if os.path.isdir(os.path.join(source_path, image_name)):
+            continue
+        else:
+            image_files.append(image_name)
+    
+    num_of_records = ceil(len(image_files) / img_per_file)
+    with Pool() as pool:
+        start_time = perf_counter()
+        pool.starmap(recordio_creation, ((source_path, dest_path, name, image_files[ n*img_per_file:(n*img_per_file) + img_per_file], n) for n in range(num_of_records)))
+
+    stop_time = perf_counter()
+    print("Completed in {} seconds".format(stop_time-start_time))
 
 @main.command()
 @click.option('--source_path', required=True)
@@ -69,11 +96,31 @@ def create_tfrecords(source_path, dest_path, name, img_per_file):
 
         tfrecord_entry = tf.train.Example(features=tf.train.Features(feature=feature))
         writer.write(tfrecord_entry.SerializeToString())
-    
+
     writer.close()
     stop_time = perf_counter()
 
     click.echo("Completed in {} seconds".format(stop_time-start_time))
+
+def recordio_creation(source_path, dest_path, name, image_files, n):
+    combined_path = os.path.join(dest_path, name)
+    regex = re.compile('\d+')
+    start_time = perf_counter()
+    dataset_rec = combined_path + str(n) + '.rec'
+    dataset_idx = combined_path + str(n) + '.idx'
+    recordio_ds = mx.recordio.MXIndexedRecordIO(os.path.join(dest_path, dataset_idx),
+                                               os.path.join(dest_path, dataset_rec), 'w')
+
+    for image_name in image_files:
+        image_path = os.path.join(source_path, image_name)
+        image_index = int(regex.findall(image_name)[0])
+        header = mx.recordio.IRHeader(0, 0, image_index, 0)
+        image = open(image_path, "rb").read()
+        packed_image = mx.recordio.pack(header, image)
+        recordio_ds.write_idx(image_index, packed_image)
+
+    recordio_ds.close()
+
 
 def image_creation(combined_path, width, height, seed, image_format, n):
     supportedImageFormats = {"jpg":"jpg", "JPG":"jpg", "jpeg":"jpg", "JPEG":"jpg",\
