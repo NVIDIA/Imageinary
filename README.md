@@ -21,6 +21,12 @@ Next, to install dependencies targetting TensorFlow 2, run:
 pip install -r requirements.txt
 ```
 
+Or, to install dependencies targetting TensorFlow 1.14, run:
+
+```bash
+pip install -r requirements.txt.tf1
+```
+
 Once finished running the code, you can leave the virtual environment with:
 
 ```bash
