@@ -1,4 +1,5 @@
-import os, re
+import os
+import re
 import numpy
 import click
 import tensorflow as tf
@@ -23,7 +24,8 @@ def main():
 @click.option('--count', default=1, required=True)
 @click.option('--image_format', default='png', required=True)
 @click.option('--seed', default=0)
-def create_images(path, name, width, height, count, image_format, seed):
+@click.option('--size', is_flag=True, default=False)
+def create_images(path, name, width, height, count, image_format, seed, size):
     click.echo("Creating {} {} files located at {} of {}x{} resolution with a base filename of {}".format(count, image_format, path, width, height, name))
 
     combined_path = os.path.join(path, name)
@@ -34,6 +36,21 @@ def create_images(path, name, width, height, count, image_format, seed):
         pool.starmap(image_creation, ((combined_path, width, height, seed, image_format, n) for n in range(count)))
 
     stop_time = perf_counter()
+
+    if size:
+        is_first_image = True
+        first_image_size = 0
+        directory_size = 0
+        for image_name in os.listdir(path):
+            if os.path.isdir(os.path.join(path, image_name)):
+                continue
+            image_path = os.path.join(path, image_name)
+            directory_size += os.path.getsize(image_path)
+            if is_first_image:
+                first_image_size = directory_size
+                is_first_image = False
+        click.echo("First image size, in bytes: {}".format(first_image_size))
+        click.echo("Directory size, in bytes: {}".format(directory_size))
 
     click.echo("Created {} files in {} seconds".format(count, stop_time-start_time))
 
