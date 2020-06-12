@@ -60,7 +60,7 @@ def create_images(path, name, width, height, count, image_format, seed, size):
 @click.option('--name', required=True)
 @click.option('--img_per_file', default=1000)
 def create_recordio(source_path, dest_path, name, img_per_file):
-    print ("Creating RecordIO files at {} from {} targeting {} files per record with a base filename of {}".format(dest_path, source_path, img_per_file, name))
+    click.echo("Creating RecordIO files at {} from {} targeting {} files per record with a base filename of {}".format(dest_path, source_path, img_per_file, name))
     image_files = []
     source_path = os.path.abspath(source_path)
     dest_path = os.path.abspath(dest_path)
@@ -77,7 +77,7 @@ def create_recordio(source_path, dest_path, name, img_per_file):
         pool.starmap(recordio_creation, ((source_path, dest_path, name, image_files[ n*img_per_file:(n*img_per_file) + img_per_file], n) for n in range(num_of_records)))
 
     stop_time = perf_counter()
-    print("Completed in {} seconds".format(stop_time-start_time))
+    click.echo("Completed in {} seconds".format(stop_time-start_time))
 
 @main.command()
 @click.option('--source_path', required=True)
