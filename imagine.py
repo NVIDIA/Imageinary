@@ -122,7 +122,6 @@ def create_tfrecords(source_path, dest_path, name, img_per_file):
 def recordio_creation(source_path, dest_path, name, image_files, n):
     combined_path = os.path.join(dest_path, name)
     regex = re.compile('\d+')
-    start_time = perf_counter()
     dataset_rec = combined_path + str(n) + '.rec'
     dataset_idx = combined_path + str(n) + '.idx'
     recordio_ds = mx.recordio.MXIndexedRecordIO(os.path.join(dest_path, dataset_idx),
