@@ -2,9 +2,9 @@ This is an early prototype of a reproducible mechanism to generate large image d
 
 Python3 is required, and this leverages numpy, click, PIL, and multiprocessing.pool.
 
-A basic run to create 10000 4K images:
+A basic run to create 1000 4K JPEGs, and echo out the size of the first file and all files in the target directory path (not including subdirectories):
 
-python3 imagine.py create_jpegs --path /mnt/nvme/ --name big_image --width 3840 --height 2160 --count 10000
+python3 imagine.py create_images --path /mnt/nvme/test_dir --name bobber_file_ --width 3840 --height 2160 --count 1000 --image_format jpg --size
 
 ## Dependency Installation
 It is recommended to run this program in a Python virtual environment to avoid dependency interference. The virtual environment can be installed and activated with:

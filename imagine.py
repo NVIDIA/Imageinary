@@ -12,7 +12,11 @@ from math import ceil
 @click.group()
 def main():
     """
-    CLI for generating a fake dataset of various quantities at different resolutions. Supports .jpg for now.
+    CLI for generating a fake dataset of various quantities at different resolutions.
+    
+    Supported file types: .bmp, .png, and .jpg.
+    Supported record types: TFRecords, and RecordIO.
+    TFRecords requires an external index file creation step.
     """
     pass
 
