@@ -42,19 +42,7 @@ def create_images(path, name, width, height, count, image_format, seed, size):
     stop_time = perf_counter()
 
     if size:
-        is_first_image = True
-        first_image_size = 0
-        directory_size = 0
-        for image_name in os.listdir(path):
-            if os.path.isdir(os.path.join(path, image_name)):
-                continue
-            image_path = os.path.join(path, image_name)
-            directory_size += os.path.getsize(image_path)
-            if is_first_image:
-                first_image_size = directory_size
-                is_first_image = False
-        click.echo("First image size, in bytes: {}".format(first_image_size))
-        click.echo("Directory size, in bytes: {}".format(directory_size))
+        print_image_information(path)
 
     click.echo("Created {} files in {} seconds".format(count, stop_time-start_time))
 
@@ -68,6 +56,8 @@ def create_recordio(source_path, dest_path, name, img_per_file):
     image_files = []
     source_path = os.path.abspath(source_path)
     dest_path = os.path.abspath(dest_path)
+    
+    print_image_information(source_path)
     
     for image_name in os.listdir(source_path):
         if os.path.isdir(os.path.join(source_path, image_name)):
@@ -92,6 +82,8 @@ def create_tfrecords(source_path, dest_path, name, img_per_file):
     click.echo("Creating TFRecord files at {} from {} targeting {} files per TFRecord with a base filename of {}".format(dest_path, source_path, img_per_file, name))
 
     combined_path = os.path.join(dest_path, name)
+
+    print_image_information(source_path)
 
     image_count = 0
     record = 0
@@ -122,6 +114,21 @@ def create_tfrecords(source_path, dest_path, name, img_per_file):
     stop_time = perf_counter()
 
     click.echo("Completed in {} seconds".format(stop_time-start_time))
+
+def print_image_information(path):
+    is_first_image = True
+    first_image_size = 0
+    directory_size = 0
+    for image_name in os.listdir(path):
+        if os.path.isdir(os.path.join(path, image_name)):
+            continue
+        image_path = os.path.join(path, image_name)
+        directory_size += os.path.getsize(image_path)
+        if is_first_image:
+            first_image_size = directory_size
+            is_first_image = False
+    click.echo("First image size from {}, in bytes: {}".format(path, first_image_size))
+    click.echo("Directory {} size, in bytes: {}".format(path, directory_size))
 
 def recordio_creation(source_path, dest_path, name, image_files, n):
     combined_path = os.path.join(dest_path, name)
