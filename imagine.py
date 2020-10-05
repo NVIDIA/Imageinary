@@ -22,6 +22,7 @@ from multiprocessing.pool import Pool
 from time import perf_counter
 from math import ceil
 
+
 @click.group()
 def main():
     """
@@ -32,6 +33,7 @@ def main():
     TFRecords requires an external index file creation step.
     """
     pass
+
 
 @main.command()
 @click.option('--path', required=True)
@@ -59,6 +61,7 @@ def create_images(path, name, width, height, count, image_format, seed, size):
 
     click.echo("Created {} files in {} seconds".format(count, stop_time-start_time))
 
+
 @main.command()
 @click.option('--source_path', required=True)
 @click.option('--dest_path', required=True)
@@ -85,6 +88,7 @@ def create_recordio(source_path, dest_path, name, img_per_file):
 
     stop_time = perf_counter()
     click.echo("Completed in {} seconds".format(stop_time-start_time))
+
 
 @main.command()
 @click.option('--source_path', required=True)
@@ -128,6 +132,7 @@ def create_tfrecords(source_path, dest_path, name, img_per_file):
 
     click.echo("Completed in {} seconds".format(stop_time-start_time))
 
+
 def print_image_information(path):
     is_first_image = True
     first_image_size = 0
@@ -142,6 +147,7 @@ def print_image_information(path):
             is_first_image = False
     click.echo("First image size from {}, in bytes: {}".format(path, first_image_size))
     click.echo("Directory {} size, in bytes: {}".format(path, directory_size))
+
 
 def recordio_creation(source_path, dest_path, name, image_files, n):
     combined_path = os.path.join(dest_path, name)
@@ -180,6 +186,7 @@ def image_creation(combined_path, width, height, seed, image_format, n):
 
     im_out.save('%s%d.%s' % (combined_path, n, fileExt))
     return
+
 
 if __name__ == "__main__":
     main()
