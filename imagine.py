@@ -27,7 +27,7 @@ from math import ceil
 def main():
     """
     CLI for generating a fake dataset of various quantities at different resolutions.
-    
+
     Supported file types: .bmp, .png, and .jpg.
     Supported record types: TFRecords, and RecordIO.
     TFRecords requires an external index file creation step.
@@ -72,19 +72,19 @@ def create_recordio(source_path, dest_path, name, img_per_file):
     image_files = []
     source_path = os.path.abspath(source_path)
     dest_path = os.path.abspath(dest_path)
-    
+
     print_image_information(source_path)
-    
+
     for image_name in os.listdir(source_path):
         if os.path.isdir(os.path.join(source_path, image_name)):
             continue
         else:
             image_files.append(image_name)
-    
+
     num_of_records = ceil(len(image_files) / img_per_file)
     with Pool() as pool:
         start_time = perf_counter()
-        pool.starmap(recordio_creation, ((source_path, dest_path, name, image_files[ n*img_per_file:(n*img_per_file) + img_per_file], n) for n in range(num_of_records)))
+        pool.starmap(recordio_creation, ((source_path, dest_path, name, image_files[n*img_per_file:(n*img_per_file) + img_per_file], n) for n in range(num_of_records)))
 
     stop_time = perf_counter()
     click.echo("Completed in {} seconds".format(stop_time-start_time))
