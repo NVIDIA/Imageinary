@@ -23,6 +23,10 @@ from time import perf_counter
 from math import ceil
 
 
+SUPPORTED_IMAGE_FORMATS = {"jpg": "jpg", "jpeg": "jpg", "bmp": "bmp",
+                           "bitmap": "bmp", "png": "png"}
+
+
 @click.group()
 def main():
     """
@@ -169,22 +173,15 @@ def recordio_creation(source_path, dest_path, name, image_files, n):
 
 
 def image_creation(combined_path, width, height, seed, image_format, n):
-    supportedImageFormats = {"jpg":"jpg", "JPG":"jpg", "jpeg":"jpg", "JPEG":"jpg",\
-                             "bmp":"bmp", "BMP":"bmp", "bitmap":"bmp", "BITMAP":"bmp",\
-                             "png":"png", "PNG":"png"}
     numpy.random.seed(seed + n)
-    fileExt = None
     a = numpy.random.rand(height,width,3) * 255
-    if image_format in supportedImageFormats.keys():
-        fileExt = supportedImageFormats[image_format]
-    else:
-        fileExt = "png"
-    if fileExt == "jpg":
+    file_ext = SUPPORTED_IMAGE_FORMATS.get(image_format.lower, 'png')
+    if file_ext == "jpg":
         im_out = Image.fromarray(a.astype('uint8')).convert('RGB')
     else:
         im_out = Image.fromarray(a.astype('uint8')).convert('RGBA')
 
-    im_out.save('%s%d.%s' % (combined_path, n, fileExt))
+    im_out.save('%s%d.%s' % (combined_path, n, file_ext))
     return
 
 
