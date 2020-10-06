@@ -15,12 +15,13 @@ import os
 import re
 import numpy
 import click
-import tensorflow as tf
-import mxnet as mx
 from PIL import Image
 from multiprocessing.pool import Pool
+from mxnet.recordio import IRHeader, MXIndexedRecordIO, pack
 from time import perf_counter
 from math import ceil
+from tensorflow.io import TFRecordWriter
+from tensorflow.train import BytesList, Example, Feature, Features, Int64List
 
 
 SUPPORTED_IMAGE_FORMATS = {"jpg": "jpg", "jpeg": "jpg", "bmp": "bmp",
@@ -30,7 +31,8 @@ SUPPORTED_IMAGE_FORMATS = {"jpg": "jpg", "jpeg": "jpg", "bmp": "bmp",
 @click.group()
 def main():
     """
-    CLI for generating a fake dataset of various quantities at different resolutions.
+    CLI for generating a fake dataset of various quantities at different
+    resolutions.
 
     Supported file types: .bmp, .png, and .jpg.
     Supported record types: TFRecords, and RecordIO.
@@ -49,21 +51,38 @@ def main():
 @click.option('--seed', default=0)
 @click.option('--size', is_flag=True, default=False)
 def create_images(path, name, width, height, count, image_format, seed, size):
-    click.echo("Creating {} {} files located at {} of {}x{} resolution with a base filename of {}".format(count, image_format, path, width, height, name))
+    click.echo("Creating {} {} files located at {} of {}x{} resolution with a "
+               "base filename of {}".format(count, image_format, path, width,
+                                            height, name))
 
     combined_path = os.path.join(path, name)
 
-    #Expected to yield a thread pool equivalent to the number of CPU cores in the system
+    # Expected to yield a thread pool equivalent to the number of CPU cores in
+    # the system.
     with Pool() as pool:
         start_time = perf_counter()
-        pool.starmap(image_creation, ((combined_path, width, height, seed, image_format, n) for n in range(count)))
+        pool.starmap(image_creation,
+                     ((combined_path, width, height, seed, image_format, n)
+                      for n in range(count)))
 
     stop_time = perf_counter()
 
     if size:
         print_image_information(path)
 
-    click.echo("Created {} files in {} seconds".format(count, stop_time-start_time))
+    click.echo("Created {} files in {} seconds".format(count,
+                                                       stop_time-start_time))
+
+
+def record_slice(source_path, dest_path, name, image_files, images_per_file,
+                 num_of_records):
+    for num in range(num_of_records):
+        subset = num * images_per_file
+        yield (source_path,
+               dest_path,
+               name,
+               image_files[subset:(subset + images_per_file)],
+               num)
 
 
 @main.command()
@@ -72,7 +91,11 @@ def create_images(path, name, width, height, count, image_format, seed, size):
 @click.option('--name', required=True)
 @click.option('--img_per_file', default=1000)
 def create_recordio(source_path, dest_path, name, img_per_file):
-    click.echo("Creating RecordIO files at {} from {} targeting {} files per record with a base filename of {}".format(dest_path, source_path, img_per_file, name))
+    click.echo("Creating RecordIO files at {} from {} targeting {} files per "
+               "record with a base filename of {}".format(dest_path,
+                                                          source_path,
+                                                          img_per_file,
+                                                          name))
     image_files = []
     source_path = os.path.abspath(source_path)
     dest_path = os.path.abspath(dest_path)
@@ -88,7 +111,13 @@ def create_recordio(source_path, dest_path, name, img_per_file):
     num_of_records = ceil(len(image_files) / img_per_file)
     with Pool() as pool:
         start_time = perf_counter()
-        pool.starmap(recordio_creation, ((source_path, dest_path, name, image_files[n*img_per_file:(n*img_per_file) + img_per_file], n) for n in range(num_of_records)))
+        pool.starmap(recordio_creation,
+                     record_slice(source_path,
+                                  dest_path,
+                                  name,
+                                  image_files,
+                                  img_per_file,
+                                  num_of_records))
 
     stop_time = perf_counter()
     click.echo("Completed in {} seconds".format(stop_time-start_time))
@@ -100,7 +129,11 @@ def create_recordio(source_path, dest_path, name, img_per_file):
 @click.option('--name', required=True)
 @click.option('--img_per_file', default=1000)
 def create_tfrecords(source_path, dest_path, name, img_per_file):
-    click.echo("Creating TFRecord files at {} from {} targeting {} files per TFRecord with a base filename of {}".format(dest_path, source_path, img_per_file, name))
+    click.echo("Creating TFRecord files at {} from {} targeting {} files per "
+               "TFRecord with a base filename of {}".format(dest_path,
+                                                            source_path,
+                                                            img_per_file,
+                                                            name))
 
     combined_path = os.path.join(dest_path, name)
 
@@ -110,7 +143,7 @@ def create_tfrecords(source_path, dest_path, name, img_per_file):
     record = 0
 
     start_time = perf_counter()
-    writer = tf.io.TFRecordWriter(combined_path + str(record))
+    writer = TFRecordWriter(combined_path + str(record))
     for image_name in os.listdir(source_path):
         if os.path.isdir(os.path.join(source_path, image_name)):
             continue
@@ -119,16 +152,16 @@ def create_tfrecords(source_path, dest_path, name, img_per_file):
             image_count = 1
             writer.close()
             record += 1
-            writer = tf.io.TFRecordWriter(combined_path + str(record))
+            writer = TFRecordWriter(combined_path + str(record))
         image_path = os.path.join(source_path, image_name)
         image = open(image_path, "rb").read()
 
         feature = {
-            'image/encoded': tf.train.Feature(bytes_list=tf.train.BytesList(value=[image])),
-            'image/class/label': tf.train.Feature(int64_list=tf.train.Int64List(value=[0]))
+            'image/encoded': Feature(bytes_list=BytesList(value=[image])),
+            'image/class/label': Feature(int64_list=Int64List(value=[0]))
         }
 
-        tfrecord_entry = tf.train.Example(features=tf.train.Features(feature=feature))
+        tfrecord_entry = Example(features=Features(feature=feature))
         writer.write(tfrecord_entry.SerializeToString())
 
     writer.close()
@@ -149,7 +182,8 @@ def print_image_information(path):
         if is_first_image:
             first_image_size = directory_size
             is_first_image = False
-    click.echo("First image size from {}, in bytes: {}".format(path, first_image_size))
+    click.echo("First image size from {}, in bytes: {}".format(path,
+               first_image_size))
     click.echo("Directory {} size, in bytes: {}".format(path, directory_size))
 
 
@@ -158,15 +192,16 @@ def recordio_creation(source_path, dest_path, name, image_files, n):
     regex = re.compile('\d+')
     dataset_rec = combined_path + str(n) + '.rec'
     dataset_idx = combined_path + str(n) + '.idx'
-    recordio_ds = mx.recordio.MXIndexedRecordIO(os.path.join(dest_path, dataset_idx),
-                                               os.path.join(dest_path, dataset_rec), 'w')
+    recordio_ds = MXIndexedRecordIO(os.path.join(dest_path, dataset_idx),
+                                    os.path.join(dest_path, dataset_rec),
+                                    'w')
 
     for image_name in image_files:
         image_path = os.path.join(source_path, image_name)
         image_index = int(regex.findall(image_name)[0])
-        header = mx.recordio.IRHeader(0, 0, image_index, 0)
+        header = IRHeader(0, 0, image_index, 0)
         image = open(image_path, "rb").read()
-        packed_image = mx.recordio.pack(header, image)
+        packed_image = pack(header, image)
         recordio_ds.write_idx(image_index, packed_image)
 
     recordio_ds.close()
