@@ -189,7 +189,7 @@ def print_image_information(path):
 
 def recordio_creation(source_path, dest_path, name, image_files, n):
     combined_path = os.path.join(dest_path, name)
-    regex = re.compile('\d+')
+    regex = re.compile(r'\d+')
     dataset_rec = combined_path + str(n) + '.rec'
     dataset_idx = combined_path + str(n) + '.idx'
     recordio_ds = MXIndexedRecordIO(os.path.join(dest_path, dataset_idx),
