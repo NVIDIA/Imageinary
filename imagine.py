@@ -103,9 +103,7 @@ def create_recordio(source_path, dest_path, name, img_per_file):
     print_image_information(source_path)
 
     for image_name in os.listdir(source_path):
-        if os.path.isdir(os.path.join(source_path, image_name)):
-            continue
-        else:
+        if not os.path.isdir(os.path.join(source_path, image_name)):
             image_files.append(image_name)
 
     num_of_records = ceil(len(image_files) / img_per_file)
@@ -145,7 +143,8 @@ def create_tfrecords(source_path, dest_path, name, img_per_file):
     start_time = perf_counter()
     writer = TFRecordWriter(combined_path + str(record))
     for image_name in os.listdir(source_path):
-        if os.path.isdir(os.path.join(source_path, image_name)):
+        image_path = os.path.join(source_path, image_name)
+        if os.path.isdir(image_path):
             continue
         image_count += 1
         if image_count > img_per_file:
@@ -153,9 +152,9 @@ def create_tfrecords(source_path, dest_path, name, img_per_file):
             writer.close()
             record += 1
             writer = TFRecordWriter(combined_path + str(record))
-        image_path = os.path.join(source_path, image_name)
-        image = open(image_path, "rb").read()
 
+        with open(image_path, 'rb') as image_file:
+            image = image_file.read()
         feature = {
             'image/encoded': Feature(bytes_list=BytesList(value=[image])),
             'image/class/label': Feature(int64_list=Int64List(value=[0]))
@@ -175,9 +174,9 @@ def print_image_information(path):
     first_image_size = 0
     directory_size = 0
     for image_name in os.listdir(path):
-        if os.path.isdir(os.path.join(path, image_name)):
-            continue
         image_path = os.path.join(path, image_name)
+        if os.path.isdir(image_path):
+            continue
         directory_size += os.path.getsize(image_path)
         if is_first_image:
             first_image_size = directory_size
@@ -217,7 +216,6 @@ def image_creation(combined_path, width, height, seed, image_format, n):
         im_out = Image.fromarray(a.astype('uint8')).convert('RGBA')
 
     im_out.save('%s%d.%s' % (combined_path, n, file_ext))
-    return
 
 
 if __name__ == "__main__":
