@@ -223,7 +223,7 @@ def recordio_creation(source_path, dest_path, name, image_files, n):
 def image_creation(combined_path, width, height, seed, image_format, n):
     numpy.random.seed(seed + n)
     a = numpy.random.rand(height, width, 3) * 255
-    file_ext = SUPPORTED_IMAGE_FORMATS.get(image_format.lower, 'png')
+    file_ext = SUPPORTED_IMAGE_FORMATS.get(image_format.lower(), 'png')
     if file_ext == "jpg":
         im_out = Image.fromarray(a.astype('uint8')).convert('RGB')
     else:
