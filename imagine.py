@@ -41,6 +41,17 @@ def main():
     pass
 
 
+def try_create_directory(directory):
+    if not os.path.exists(directory):
+        os.mkdir(directory)
+
+
+def check_directory_exists(directory):
+    if not os.path.exists(directory):
+        raise RuntimeError('Error: Please specify an input directory which '
+                           'contains valid images.')
+
+
 @main.command()
 @click.option('--path', required=True)
 @click.option('--name', required=True)
@@ -54,7 +65,7 @@ def create_images(path, name, width, height, count, image_format, seed, size):
     click.echo("Creating {} {} files located at {} of {}x{} resolution with a "
                "base filename of {}".format(count, image_format, path, width,
                                             height, name))
-
+    try_create_directory(path)
     combined_path = os.path.join(path, name)
 
     # Expected to yield a thread pool equivalent to the number of CPU cores in
@@ -99,6 +110,8 @@ def create_recordio(source_path, dest_path, name, img_per_file):
     image_files = []
     source_path = os.path.abspath(source_path)
     dest_path = os.path.abspath(dest_path)
+    check_directory_exists(source_path)
+    try_create_directory(dest_path)
 
     print_image_information(source_path)
 
@@ -132,7 +145,8 @@ def create_tfrecords(source_path, dest_path, name, img_per_file):
                                                             source_path,
                                                             img_per_file,
                                                             name))
-
+    check_directory_exists(source_path)
+    try_create_directory(dest_path)
     combined_path = os.path.join(dest_path, name)
 
     print_image_information(source_path)
