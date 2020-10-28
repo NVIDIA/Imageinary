@@ -107,3 +107,15 @@ python3 imagine.py create-recordio \
 This command uses the JPEGs created during the previous step and creates
 TFRecords based on those images. The TFRecords will be saved to
 `/mnt/nvme/record_files` where each file will be comprised of 100 JPEGs.
+
+## Testing
+This repository includes functional tests for the major modules listed above
+which can be verified locally using `pytest`. While in the virtual environment,
+run the following:
+
+```bash
+$ pytest --cov=imagine --cov-report term-missing tests/
+```
+
+This will output the test results including the overall coverage for the Python
+module.
