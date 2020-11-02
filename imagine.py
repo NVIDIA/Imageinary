@@ -70,11 +70,15 @@ def create_images(path, name, width, height, count, image_format, seed, size):
 
     # Expected to yield a thread pool equivalent to the number of CPU cores in
     # the system.
-    with Pool() as pool:
+    pool = Pool()
+    try:
         start_time = perf_counter()
         pool.starmap(image_creation,
                      ((combined_path, width, height, seed, image_format, n)
                       for n in range(count)))
+    finally:
+        pool.close()
+        pool.join()
 
     stop_time = perf_counter()
 
@@ -120,7 +124,8 @@ def create_recordio(source_path, dest_path, name, img_per_file):
             image_files.append(image_name)
 
     num_of_records = ceil(len(image_files) / img_per_file)
-    with Pool() as pool:
+    pool = Pool()
+    try:
         start_time = perf_counter()
         pool.starmap(recordio_creation,
                      record_slice(source_path,
@@ -129,6 +134,9 @@ def create_recordio(source_path, dest_path, name, img_per_file):
                                   image_files,
                                   img_per_file,
                                   num_of_records))
+    finally:
+        pool.close()
+        pool.join()
 
     stop_time = perf_counter()
     click.echo("Completed in {} seconds".format(stop_time-start_time))
