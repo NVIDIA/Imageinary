@@ -1,0 +1,54 @@
+name: Imageinary push tests
+
+on: [push, pull_request]
+
+jobs:
+  test_tf2:
+    name: Test and lint code for TensorFlow 2
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+        operating-system: [ubuntu-latest, macOS-latest, windows-latest, windows-2016]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run unit and functional tests with pytest
+      run: |
+        pytest --cov=imagine --cov-report term-missing tests/
+    - name: Lint with pycodestyle
+      run: |
+        pycodestyle imagine.py tests/
+        
+  test_tf1:
+    name: Test code for TensorFlow 1.x
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7]
+        operating-system: [ubuntu-latest, macOS-latest, windows-latest, windows-2016]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt.tf1
+    - name: Run unit and functional tests with pytest
+      run: |
+        pytest --cov=imagine --cov-report term-missing tests/
+    - name: Lint with pycodestyle
+      run: |
+        pycodestyle imagine.py tests/
