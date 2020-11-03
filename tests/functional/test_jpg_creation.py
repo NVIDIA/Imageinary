@@ -45,8 +45,8 @@ class TestJPGCreation:
         assert len(images) == 100
         for image in images:
             assert re.search(r'tmp_\d+.jpg', image)
-            im = Image.open(image)
-            assert im.size == (1920, 1080)
+            with Image.open(image) as im:
+                assert im.size == (1920, 1080)
 
     def test_creating_one_hundred_4K_images(self):
         self.runner.invoke(main, ['create-images',
@@ -62,5 +62,5 @@ class TestJPGCreation:
         assert len(images) == 100
         for image in images:
             assert re.search(r'tmp_\d+.jpg', image)
-            im = Image.open(image)
-            assert im.size == (3840, 2160)
+            with Image.open(image) as im:
+                assert im.size == (3840, 2160)

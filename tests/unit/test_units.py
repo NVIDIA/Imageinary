@@ -17,7 +17,8 @@ import os
 
 
 class TestUnits:
-    def setup_method(self, tmpdir):
+    @pytest.fixture(autouse=True)
+    def setup(self, tmpdir):
         self.tmpdir = tmpdir
 
     def teardown_method(self):
@@ -32,7 +33,8 @@ class TestUnits:
 
     def test_error_input_directory_doesnt_exist(self):
         with pytest.raises(RuntimeError):
-            imagine.check_directory_exists(str(self.tmpdir))
+            imagine.check_directory_exists(os.path.join(str(self.tmpdir),
+                                                        'dne'))
 
     def test_record_slice_yields_expected_results(self):
         slices = [range(x, x + 100) for x in range(0, 1000, 100)]
