@@ -51,6 +51,60 @@ Once finished running the code, you can leave the virtual environment with:
 deactivate
 ```
 
+## Building from source
+Imageinary includes a `setup.py` file which makes it easy to build and install
+a binary locally. To build the package, run the following:
+
+```bash
+python3 setup.py sdist bdist_wheel
+```
+
+This will generate a new package for Imageinary in the `dist/` directory which
+can be installed via `pip`.
+
+```bash
+$ ls dist/
+imageinary-1.0.0-py3-none-any.whl imageinary-1.0.0.tar.gz
+```
+
+## Installing
+Once the package is built, it can be installed locally with `pip` using a few
+different options depending on your needs.
+
+### Minimal Install
+The minimal install supports standard image types, such as JPG, PNG, and BMP
+and only installs the dependencies necessary for those tools.
+
+```bash
+pip install imageinary
+```
+
+### TFRecord Support
+To add support for TFRecords in addition to the standard image types, TensorFlow
+needs to be included as a dependency. This can be done by running the following
+which installs TensorFlow alongside all other dependencies:
+
+```bash
+pip install imageinary['tfrecord']
+```
+
+### RecordIO Support
+RecordIO files are supported using MXNet, which can be included as a dependency
+using the following:
+
+```bash
+pip install imageinary['mxnet']
+```
+
+### Complete Install
+If desired, all dependencies can be installed to support standard images,
+TFRecords, and RecordIO files without installing extra packages later. Run the
+following to install all dependencies:
+
+```bash
+pip install imageinary['all']
+```
+
 ## Running
 Imageinary supports many different image types which can be specified while
 running the application.
@@ -60,7 +114,7 @@ A basic run to create 1000 4K JPEGs, and display the size of the first file and
 all files in the target directory path (not including subdirectories):
 
 ```bash
-python3 imagine.py create-images \
+imagine create-images \
     --path /mnt/nvme/test_dir \
     --name random_image_ \
     --width 3840 \
@@ -82,7 +136,7 @@ TFRecords can also be easily generated using the application. This command
 expects images to be pre-loaded to be used as the basis for the TFRecord files.
 
 ```bash
-python3 imagine.py create-tfrecords \
+imagine create-tfrecords \
     --source_path /mnt/nvme/test_dir \
     --dest_path /mnt/nvme/tf_record_dir \
     --name random_tfrecord_ \
@@ -97,7 +151,7 @@ TFRecords based on those images. The TFRecords will be saved to
 Similarly, RecordIO files can be generated with a single command:
 
 ```bash
-python3 imagine.py create-recordio \
+imagine create-recordio \
     --source_path /mnt/nvme/test_dir \
     --dest_path /mnt/nvme/record_files \
     --name random_recordio_ \

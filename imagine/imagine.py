@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +18,21 @@ import numpy
 import click
 from PIL import Image
 from multiprocessing.pool import Pool
-from mxnet.recordio import IRHeader, MXIndexedRecordIO, pack
+try:
+    from mxnet.recordio import IRHeader, MXIndexedRecordIO, pack
+except ImportError:
+    IRHeader = None
 from time import perf_counter
 from math import ceil
-from tensorflow.io import TFRecordWriter
-from tensorflow.train import BytesList, Example, Feature, Features, Int64List
+try:
+    from tensorflow.io import TFRecordWriter
+    from tensorflow.train import (BytesList,
+                                  Example,
+                                  Feature,
+                                  Features,
+                                  Int64List)
+except ImportError:
+    TFRecordWriter = None
 
 
 SUPPORTED_IMAGE_FORMATS = {"jpg": "jpg", "jpeg": "jpg", "bmp": "bmp",
@@ -111,6 +122,9 @@ def create_recordio(source_path, dest_path, name, img_per_file):
                                                           source_path,
                                                           img_per_file,
                                                           name))
+    if not IRHeader:
+        raise ImportError('MXNet not found! Please install MXNet dependency '
+                          'using "pip install imageinary[\'mxnet\']".')
     image_files = []
     source_path = os.path.abspath(source_path)
     dest_path = os.path.abspath(dest_path)
@@ -153,6 +167,10 @@ def create_tfrecords(source_path, dest_path, name, img_per_file):
                                                             source_path,
                                                             img_per_file,
                                                             name))
+    if not TFRecordWriter:
+        raise ImportError('TensorFlow not found! Please install TensorFlow '
+                          'dependency using "pip install '
+                          'imageinary[\'tfrecord\']".')
     check_directory_exists(source_path)
     try_create_directory(dest_path)
     combined_path = os.path.join(dest_path, name)
