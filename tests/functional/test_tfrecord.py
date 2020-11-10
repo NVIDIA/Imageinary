@@ -16,7 +16,7 @@ import re
 import os
 from click.testing import CliRunner
 from glob import glob
-from imagine import main
+from imagine.imagine import main
 from PIL import Image
 
 

@@ -26,7 +26,34 @@ jobs:
         pytest --cov=imagine --cov-report term-missing tests/
     - name: Lint with pycodestyle
       run: |
-        pycodestyle imagine.py tests/
+        pycodestyle imagine/ tests/
+    - name: Build the latest binary
+      run: |
+        python setup.py sdist bdist_wheel
+    - name: Install the built wheel and test usage (UNIX)
+      if: matrix.operating-system == 'ubuntu-latest' || matrix.operating-system == 'macOS-latest'
+      run: |
+        pip install --ignore-installed dist/imageinary-*-py3-none-any.whl
+        imagine --help
+    - name: Install the built wheel and test usage (Windows)
+      if: matrix.operating-system == 'windows-latest' || matrix.operating-system == 'windows-2016'
+      run: |
+        pip install --ignore-installed --find-links=dist imageinary
+        imagine --help
+    - name: Install the built wheel with all dependencies (UNIX)
+      if: matrix.operating-system == 'ubuntu-latest' || matrix.operating-system == 'macOS-latest'
+      run: |
+        pip install imageinary['all']
+        imagine --help
+        pip freeze | grep "tensorflow"
+        pip freeze | grep "mxnet"
+    - name: Install the built wheel with all dependencies (Windows)
+      if: matrix.operating-system == 'windows-latest' || matrix.operating-system == 'windows-2016'
+      run: |
+        pip install imageinary['all']
+        imagine --help
+        pip freeze | grep "tensorflow"
+        pip freeze | grep "mxnet"
         
   test_tf1:
     name: Test code for TensorFlow 1.x
@@ -51,4 +78,31 @@ jobs:
         pytest --cov=imagine --cov-report term-missing tests/
     - name: Lint with pycodestyle
       run: |
-        pycodestyle imagine.py tests/
+        pycodestyle imagine/ tests/
+    - name: Build the latest binary
+      run: |
+        python setup.py sdist bdist_wheel
+    - name: Install the built wheel and test usage (UNIX)
+      if: matrix.operating-system == 'ubuntu-latest' || matrix.operating-system == 'macOS-latest'
+      run: |
+        pip install --ignore-installed dist/imageinary-*-py3-none-any.whl
+        imagine --help
+    - name: Install the built wheel and test usage (Windows)
+      if: matrix.operating-system == 'windows-latest' || matrix.operating-system == 'windows-2016'
+      run: |
+        pip install --ignore-installed --find-links=dist imageinary
+        imagine --help
+    - name: Install the built wheel with all dependencies (UNIX)
+      if: matrix.operating-system == 'ubuntu-latest' || matrix.operating-system == 'macOS-latest'
+      run: |
+        pip install tensorflow==1.14.0 imageinary['all']
+        imagine --help
+        pip freeze | grep "tensorflow"
+        pip freeze | grep "mxnet"
+    - name: Install the built wheel with all dependencies (Windows)
+      if: matrix.operating-system == 'windows-latest' || matrix.operating-system == 'windows-2016'
+      run: |
+        pip install tensorflow==1.14.0 imageinary['all']
+        imagine --help
+        pip freeze | grep "tensorflow"
+        pip freeze | grep "mxnet"

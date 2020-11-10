@@ -2,3 +2,6 @@
 *vscode*
 *env*
 *coverage*
+build/*
+dist/*
+*egg*
