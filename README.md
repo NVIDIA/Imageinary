@@ -64,7 +64,7 @@ can be installed via `pip`.
 
 ```bash
 $ ls dist/
-imageinary-1.0.0-py3-none-any.whl imageinary-1.0.0.tar.gz
+nvidia-imageinary-1.0.1-py3-none-any.whl nvidia-imageinary-1.0.1.tar.gz
 ```
 
 ## Installing
@@ -76,7 +76,7 @@ The minimal install supports standard image types, such as JPG, PNG, and BMP
 and only installs the dependencies necessary for those tools.
 
 ```bash
-pip install imageinary
+pip install nvidia-imageinary
 ```
 
 ### TFRecord Support
@@ -85,7 +85,7 @@ needs to be included as a dependency. This can be done by running the following
 which installs TensorFlow alongside all other dependencies:
 
 ```bash
-pip install imageinary['tfrecord']
+pip install nvidia-imageinary['tfrecord']
 ```
 
 ### RecordIO Support
@@ -93,7 +93,7 @@ RecordIO files are supported using MXNet, which can be included as a dependency
 using the following:
 
 ```bash
-pip install imageinary['mxnet']
+pip install nvidia-imageinary['mxnet']
 ```
 
 ### Complete Install
@@ -102,7 +102,7 @@ TFRecords, and RecordIO files without installing extra packages later. Run the
 following to install all dependencies:
 
 ```bash
-pip install imageinary['all']
+pip install nvidia-imageinary['all']
 ```
 
 ## Running

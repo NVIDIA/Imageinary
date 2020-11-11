@@ -14,7 +14,7 @@ extras = {
 extras['all'] = [item for group in extras.values() for item in group]
 
 setup(
-    name='imageinary',
+    name='nvidia-imageinary',
     version=version,
     description='''A reproducible mechanism which is used to generate large
 image datasets at various resolutions. The tool supports multiple image types,
