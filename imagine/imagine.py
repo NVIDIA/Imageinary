@@ -15,7 +15,7 @@
 import os
 import re
 import numpy
-import click
+from argparse import ArgumentParser
 from PIL import Image
 from multiprocessing.pool import Pool
 try:
@@ -35,13 +35,15 @@ except ImportError:
     TFRecordWriter = None
 
 
+STANDARD_IMAGE = 'create-images'
+TFRECORD = 'create-tfrecord'
+RECORDIO = 'create-recordio'
 SUPPORTED_IMAGE_FORMATS = {"jpg": "jpg", "jpeg": "jpg", "bmp": "bmp",
                            "bitmap": "bmp", "png": "png"}
 
 
-@click.group()
-def main():
-    """
+def parse_args():
+    message = """
     CLI for generating a fake dataset of various quantities at different
     resolutions.
 
@@ -49,7 +51,45 @@ def main():
     Supported record types: TFRecords, and RecordIO.
     TFRecords requires an external index file creation step.
     """
-    pass
+    parser = ArgumentParser(message)
+    # Required positional command subparser which should be specified first
+    commands = parser.add_subparsers(dest='command', metavar='command')
+    commands_parent = ArgumentParser(add_help=False)
+
+    # Options specific to record types
+    commands_parent.add_argument('source_path', metavar='source-path',
+                                 help='Path containing valid input images to '
+                                 'convert to records')
+    commands_parent.add_argument('dest_path', metavar='dest-path',
+                                 help='Path to save record files to')
+    commands_parent.add_argument('name', help='Name to prepend files with, '
+                                 'such as "sample_record_"')
+    commands_parent.add_argument('--img-per-file', type=int, default=1000)
+    commands.add_parser(TFRECORD, help='Create TFRecords from input images',
+                        parents=[commands_parent])
+    commands.add_parser(RECORDIO, help='Create RecordIO from input images',
+                        parents=[commands_parent])
+
+    # Options specific to generating standard images
+    standard = commands.add_parser(STANDARD_IMAGE, help='Generate random '
+                                   'images')
+    standard.add_argument('path', help='Path to save images to')
+    standard.add_argument('name', help='Name to prepend files with, such as '
+                          '"sample_image_"')
+    standard.add_argument('image_format', metavar='image-format', help='The '
+                          'image format to generate',
+                          choices=SUPPORTED_IMAGE_FORMATS.keys())
+    standard.add_argument('--width', help='The image width in pixels',
+                          type=int, default=1920)
+    standard.add_argument('--height', help='The image height in pixels',
+                          type=int, default=1080)
+    standard.add_argument('--count', help='The number of images to generate',
+                          type=int, default=1)
+    standard.add_argument('--seed', help='The seed to use while generating '
+                          'random image data', type=int, default=0)
+    standard.add_argument('--size', help='Display the first image size and '
+                          'the directory size for the images')
+    return parser.parse_args()
 
 
 def try_create_directory(directory):
@@ -63,21 +103,11 @@ def check_directory_exists(directory):
                            'contains valid images.')
 
 
-@main.command()
-@click.option('--path', required=True)
-@click.option('--name', required=True)
-@click.option('--width', default=1920, required=True)
-@click.option('--height', default=1080, required=True)
-@click.option('--count', default=1, required=True)
-@click.option('--image_format', default='png', required=True)
-@click.option('--seed', default=0)
-@click.option('--size', is_flag=True, default=False)
-@click.option('--chunksize', default=64)
 def create_images(path, name, width, height, count, image_format, seed, size,
-                  chunksize):
-    click.echo("Creating {} {} files located at {} of {}x{} resolution with a "
-               "base filename of {}".format(count, image_format, path, width,
-                                            height, name))
+                  chunksize=64):
+    print('Creating {} {} files located at {} of {}x{} resolution with a base '
+          'base filename of {}'.format(count, image_format, path, width,
+                                       height, name))
     try_create_directory(path)
     combined_path = os.path.join(path, name)
 
@@ -102,8 +132,7 @@ def create_images(path, name, width, height, count, image_format, seed, size,
     if size:
         print_image_information(path)
 
-    click.echo("Created {} files in {} seconds".format(count,
-                                                       stop_time-start_time))
+    print('Created {} files in {} seconds'.format(count, stop_time-start_time))
 
 
 def record_slice(source_path, dest_path, name, image_files, images_per_file,
@@ -117,17 +146,12 @@ def record_slice(source_path, dest_path, name, image_files, images_per_file,
                num)
 
 
-@main.command()
-@click.option('--source_path', required=True)
-@click.option('--dest_path', required=True)
-@click.option('--name', required=True)
-@click.option('--img_per_file', default=1000)
 def create_recordio(source_path, dest_path, name, img_per_file):
-    click.echo("Creating RecordIO files at {} from {} targeting {} files per "
-               "record with a base filename of {}".format(dest_path,
-                                                          source_path,
-                                                          img_per_file,
-                                                          name))
+    print('Creating RecordIO files at {} from {} targeting {} files per '
+          'record with a base filename of {}'.format(dest_path,
+                                                     source_path,
+                                                     img_per_file,
+                                                     name))
     if not IRHeader:
         raise ImportError('MXNet not found! Please install MXNet dependency '
                           'using "pip install nvidia-imageinary[\'mxnet\']".')
@@ -159,20 +183,15 @@ def create_recordio(source_path, dest_path, name, img_per_file):
         pool.join()
 
     stop_time = perf_counter()
-    click.echo("Completed in {} seconds".format(stop_time-start_time))
+    print('Completed in {} seconds'.format(stop_time-start_time))
 
 
-@main.command()
-@click.option('--source_path', required=True)
-@click.option('--dest_path', required=True)
-@click.option('--name', required=True)
-@click.option('--img_per_file', default=1000)
 def create_tfrecords(source_path, dest_path, name, img_per_file):
-    click.echo("Creating TFRecord files at {} from {} targeting {} files per "
-               "TFRecord with a base filename of {}".format(dest_path,
-                                                            source_path,
-                                                            img_per_file,
-                                                            name))
+    print('Creating TFRecord files at {} from {} targeting {} files per '
+          'TFRecord with a base filename of {}'.format(dest_path,
+                                                       source_path,
+                                                       img_per_file,
+                                                       name))
     if not TFRecordWriter:
         raise ImportError('TensorFlow not found! Please install TensorFlow '
                           'dependency using "pip install '
@@ -212,7 +231,7 @@ def create_tfrecords(source_path, dest_path, name, img_per_file):
     writer.close()
     stop_time = perf_counter()
 
-    click.echo("Completed in {} seconds".format(stop_time-start_time))
+    print('Completed in {} seconds'.format(stop_time-start_time))
 
 
 def print_image_information(path):
@@ -227,9 +246,9 @@ def print_image_information(path):
         if is_first_image:
             first_image_size = directory_size
             is_first_image = False
-    click.echo("First image size from {}, in bytes: {}".format(path,
-               first_image_size))
-    click.echo("Directory {} size, in bytes: {}".format(path, directory_size))
+    print('First image size from {}, in bytes: {}'.format(path,
+                                                          first_image_size))
+    print('Directory {} size, in bytes: {}'.format(path, directory_size))
 
 
 def recordio_creation(source_path, dest_path, name, image_files, n):
@@ -262,6 +281,19 @@ def image_creation(combined_path, width, height, seed, image_format, n):
         im_out = Image.fromarray(a.astype('uint8')).convert('RGBA')
 
     im_out.save('%s%d.%s' % (combined_path, n, file_ext))
+
+
+def main():
+    args = parse_args()
+    if args.command == STANDARD_IMAGE:
+        create_images(args.path, args.name, args.width, args.height,
+                      args.count, args.image_format, args.seed, args.size)
+    elif args.command == TFRECORD:
+        create_tfrecords(args.source_path, args.dest_path, args.name,
+                         args.img_per_file)
+    elif args.command == RECORDIO:
+        create_recordio(args.source_path, args.dest_path, args.name,
+                        args.img_per_file)
 
 
 if __name__ == "__main__":

@@ -14,9 +14,8 @@
 import pytest
 import re
 import os
-from click.testing import CliRunner
 from glob import glob
-from imagine.imagine import main
+from imagine.imagine import create_images, create_tfrecords
 from PIL import Image
 
 
@@ -25,7 +24,6 @@ class TestTFRecordCreation:
     def setup(self, tmpdir):
         self.tmpdir = tmpdir.mkdir('input_files')
         self.outdir = tmpdir.mkdir('output_files')
-        self.runner = CliRunner()
 
     def teardown_method(self):
         for image in glob(f'{str(self.tmpdir)}/*'):
@@ -37,18 +35,22 @@ class TestTFRecordCreation:
 
     def test_creating_tfrecord_from_100_jpgs(self):
         # Create sample images which will be used as a basis.
-        self.runner.invoke(main, ['create-images',
-                                  '--path', str(self.tmpdir),
-                                  '--name', 'tmp_',
-                                  '--width', 1920,
-                                  '--height', 1080,
-                                  '--count', 100,
-                                  '--image_format', 'jpg'])
-        self.runner.invoke(main, ['create-tfrecords',
-                                  '--source_path', str(self.tmpdir),
-                                  '--dest_path', str(self.outdir),
-                                  '--name', 'tmprecord_',
-                                  '--img_per_file', 100])
+        create_images(
+            str(self.tmpdir),
+            'tmp_',
+            1920,
+            1080,
+            100,
+            'jpg',
+            0,
+            False
+        )
+        create_tfrecords(
+            str(self.tmpdir),
+            str(self.outdir),
+            'tmprecord_',
+            100
+        )
 
         records = glob(f'{str(self.outdir)}/*')
 
@@ -57,18 +59,22 @@ class TestTFRecordCreation:
 
     def test_creating_tfrecord_from_100_pngs(self):
         # Create sample images which will be used as a basis.
-        self.runner.invoke(main, ['create-images',
-                                  '--path', str(self.tmpdir),
-                                  '--name', 'tmp_',
-                                  '--width', 1920,
-                                  '--height', 1080,
-                                  '--count', 100,
-                                  '--image_format', 'png'])
-        self.runner.invoke(main, ['create-tfrecords',
-                                  '--source_path', str(self.tmpdir),
-                                  '--dest_path', str(self.outdir),
-                                  '--name', 'tmprecord_',
-                                  '--img_per_file', 100])
+        create_images(
+            str(self.tmpdir),
+            'tmp_',
+            1920,
+            1080,
+            100,
+            'png',
+            0,
+            False
+        )
+        create_tfrecords(
+            str(self.tmpdir),
+            str(self.outdir),
+            'tmprecord_',
+            100
+        )
 
         records = glob(f'{str(self.outdir)}/*')
 
@@ -77,18 +83,22 @@ class TestTFRecordCreation:
 
     def test_creating_tfrecord_from_100_jpg_multiple_files(self):
         # Create sample images which will be used as a basis.
-        self.runner.invoke(main, ['create-images',
-                                  '--path', str(self.tmpdir),
-                                  '--name', 'tmp_',
-                                  '--width', 1920,
-                                  '--height', 1080,
-                                  '--count', 100,
-                                  '--image_format', 'jpg'])
-        self.runner.invoke(main, ['create-tfrecords',
-                                  '--source_path', str(self.tmpdir),
-                                  '--dest_path', str(self.outdir),
-                                  '--name', 'tmprecord_',
-                                  '--img_per_file', 10])
+        create_images(
+            str(self.tmpdir),
+            'tmp_',
+            1920,
+            1080,
+            100,
+            'jpg',
+            0,
+            False
+        )
+        create_tfrecords(
+            str(self.tmpdir),
+            str(self.outdir),
+            'tmprecord_',
+            10
+        )
 
         records = glob(f'{str(self.outdir)}/*')
 
@@ -98,18 +108,22 @@ class TestTFRecordCreation:
 
     def test_creating_tfrecord_from_100_pngs_multiple_files(self):
         # Create sample images which will be used as a basis.
-        self.runner.invoke(main, ['create-images',
-                                  '--path', str(self.tmpdir),
-                                  '--name', 'tmp_',
-                                  '--width', 1920,
-                                  '--height', 1080,
-                                  '--count', 100,
-                                  '--image_format', 'png'])
-        self.runner.invoke(main, ['create-tfrecords',
-                                  '--source_path', str(self.tmpdir),
-                                  '--dest_path', str(self.outdir),
-                                  '--name', 'tmprecord_',
-                                  '--img_per_file', 10])
+        create_images(
+            str(self.tmpdir),
+            'tmp_',
+            1920,
+            1080,
+            100,
+            'png',
+            0,
+            False
+        )
+        create_tfrecords(
+            str(self.tmpdir),
+            str(self.outdir),
+            'tmprecord_',
+            10
+        )
 
         records = glob(f'{str(self.outdir)}/*')
 

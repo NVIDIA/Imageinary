@@ -20,7 +20,6 @@ requested output format and saved to the specified location.
   * MXNet
   * Pillow
   * Numpy
-  * Click
 
 ## Installation
 The application is available on `nvidia-pyindex` and can be downloaded and
