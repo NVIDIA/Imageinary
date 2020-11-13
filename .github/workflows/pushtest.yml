@@ -33,24 +33,24 @@ jobs:
     - name: Install the built wheel and test usage (UNIX)
       if: matrix.operating-system == 'ubuntu-latest' || matrix.operating-system == 'macOS-latest'
       run: |
-        pip install --ignore-installed dist/imageinary-*-py3-none-any.whl
+        pip install --ignore-installed dist/nvidia_imageinary-*-py3-none-any.whl
         imagine --help
     - name: Install the built wheel and test usage (Windows)
       if: matrix.operating-system == 'windows-latest' || matrix.operating-system == 'windows-2016'
       run: |
-        pip install --ignore-installed --find-links=dist imageinary
+        pip install --ignore-installed --find-links=dist nvidia-imageinary
         imagine --help
     - name: Install the built wheel with all dependencies (UNIX)
       if: matrix.operating-system == 'ubuntu-latest' || matrix.operating-system == 'macOS-latest'
       run: |
-        pip install imageinary['all']
+        pip install nvidia-imageinary['all']
         imagine --help
         pip freeze | grep "tensorflow"
         pip freeze | grep "mxnet"
     - name: Install the built wheel with all dependencies (Windows)
       if: matrix.operating-system == 'windows-latest' || matrix.operating-system == 'windows-2016'
       run: |
-        pip install imageinary['all']
+        pip install nvidia-imageinary['all']
         imagine --help
         pip freeze | grep "tensorflow"
         pip freeze | grep "mxnet"
@@ -85,24 +85,24 @@ jobs:
     - name: Install the built wheel and test usage (UNIX)
       if: matrix.operating-system == 'ubuntu-latest' || matrix.operating-system == 'macOS-latest'
       run: |
-        pip install --ignore-installed dist/imageinary-*-py3-none-any.whl
+        pip install --ignore-installed dist/nvidia_imageinary-*-py3-none-any.whl
         imagine --help
     - name: Install the built wheel and test usage (Windows)
       if: matrix.operating-system == 'windows-latest' || matrix.operating-system == 'windows-2016'
       run: |
-        pip install --ignore-installed --find-links=dist imageinary
+        pip install --ignore-installed --find-links=dist nvidia-imageinary
         imagine --help
     - name: Install the built wheel with all dependencies (UNIX)
       if: matrix.operating-system == 'ubuntu-latest' || matrix.operating-system == 'macOS-latest'
       run: |
-        pip install tensorflow==1.14.0 imageinary['all']
+        pip install tensorflow==1.14.0 nvidia-imageinary['all']
         imagine --help
         pip freeze | grep "tensorflow"
         pip freeze | grep "mxnet"
     - name: Install the built wheel with all dependencies (Windows)
       if: matrix.operating-system == 'windows-latest' || matrix.operating-system == 'windows-2016'
       run: |
-        pip install tensorflow==1.14.0 imageinary['all']
+        pip install tensorflow==1.14.0 nvidia-imageinary['all']
         imagine --help
         pip freeze | grep "tensorflow"
         pip freeze | grep "mxnet"
