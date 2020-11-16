@@ -15,7 +15,7 @@ import pytest
 import re
 import os
 from glob import glob
-from imagine.imagine import create_images
+from imagine import create_images
 from PIL import Image
 
 

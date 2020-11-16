@@ -564,7 +564,3 @@ def main() -> NoReturn:
     elif args.command == RECORDIO:
         create_recordio(args.source_path, args.dest_path, args.name,
                         args.img_per_file)
-
-
-if __name__ == "__main__":
-    main()
