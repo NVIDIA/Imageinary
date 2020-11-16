@@ -124,7 +124,7 @@ def create_recordio(source_path, dest_path, name, img_per_file):
                                                           name))
     if not IRHeader:
         raise ImportError('MXNet not found! Please install MXNet dependency '
-                          'using "pip install imageinary[\'mxnet\']".')
+                          'using "pip install nvidia-imageinary[\'mxnet\']".')
     image_files = []
     source_path = os.path.abspath(source_path)
     dest_path = os.path.abspath(dest_path)
@@ -170,7 +170,7 @@ def create_tfrecords(source_path, dest_path, name, img_per_file):
     if not TFRecordWriter:
         raise ImportError('TensorFlow not found! Please install TensorFlow '
                           'dependency using "pip install '
-                          'imageinary[\'tfrecord\']".')
+                          'nvidia-imageinary[\'tfrecord\']".')
     check_directory_exists(source_path)
     try_create_directory(dest_path)
     combined_path = os.path.join(dest_path, name)
