@@ -15,7 +15,7 @@
 import os
 import re
 import numpy
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from PIL import Image
 from multiprocessing.pool import Pool
 try:
@@ -23,6 +23,7 @@ try:
 except ImportError:
     IRHeader = None
 from time import perf_counter
+from typing import Generator, List, NoReturn, Optional, Tuple
 from math import ceil
 try:
     from tensorflow.io import TFRecordWriter
@@ -42,7 +43,7 @@ SUPPORTED_IMAGE_FORMATS = {"jpg": "jpg", "jpeg": "jpg", "bmp": "bmp",
                            "bitmap": "bmp", "png": "png"}
 
 
-def parse_args():
+def parse_args() -> Namespace:
     message = """
     CLI for generating a fake dataset of various quantities at different
     resolutions.
@@ -92,19 +93,28 @@ def parse_args():
     return parser.parse_args()
 
 
-def try_create_directory(directory):
+def try_create_directory(directory: str) -> NoReturn:
     if not os.path.exists(directory):
         os.mkdir(directory)
 
 
-def check_directory_exists(directory):
+def check_directory_exists(directory: str) -> NoReturn:
     if not os.path.exists(directory):
         raise RuntimeError('Error: Please specify an input directory which '
                            'contains valid images.')
 
 
-def create_images(path, name, width, height, count, image_format, seed, size,
-                  chunksize=64):
+def create_images(
+    path: str,
+    name: str,
+    width: int,
+    height: int,
+    count: int,
+    image_format: str,
+    seed: Optional[int] = 0,
+    size: Optional[bool] = False,
+    chunksize: Optional[int] = 64
+) -> NoReturn:
     print('Creating {} {} files located at {} of {}x{} resolution with a base '
           'base filename of {}'.format(count, image_format, path, width,
                                        height, name))
@@ -135,8 +145,14 @@ def create_images(path, name, width, height, count, image_format, seed, size,
     print('Created {} files in {} seconds'.format(count, stop_time-start_time))
 
 
-def record_slice(source_path, dest_path, name, image_files, images_per_file,
-                 num_of_records):
+def record_slice(
+    source_path: str,
+    dest_path: str,
+    name: str,
+    image_files: List[str],
+    images_per_file: int,
+    num_of_records: int
+) -> Generator[Tuple[str, str, str, List[str], int], None, None]:
     for num in range(num_of_records):
         subset = num * images_per_file
         yield (source_path,
@@ -146,7 +162,12 @@ def record_slice(source_path, dest_path, name, image_files, images_per_file,
                num)
 
 
-def create_recordio(source_path, dest_path, name, img_per_file):
+def create_recordio(
+    source_path: str,
+    dest_path: str,
+    name: str,
+    img_per_file: int
+) -> NoReturn:
     print('Creating RecordIO files at {} from {} targeting {} files per '
           'record with a base filename of {}'.format(dest_path,
                                                      source_path,
@@ -186,7 +207,12 @@ def create_recordio(source_path, dest_path, name, img_per_file):
     print('Completed in {} seconds'.format(stop_time-start_time))
 
 
-def create_tfrecords(source_path, dest_path, name, img_per_file):
+def create_tfrecords(
+    source_path: str,
+    dest_path: str,
+    name: str,
+    img_per_file: int
+) -> NoReturn:
     print('Creating TFRecord files at {} from {} targeting {} files per '
           'TFRecord with a base filename of {}'.format(dest_path,
                                                        source_path,
@@ -234,7 +260,7 @@ def create_tfrecords(source_path, dest_path, name, img_per_file):
     print('Completed in {} seconds'.format(stop_time-start_time))
 
 
-def print_image_information(path):
+def print_image_information(path: str) -> NoReturn:
     is_first_image = True
     first_image_size = 0
     directory_size = 0
@@ -251,7 +277,13 @@ def print_image_information(path):
     print('Directory {} size, in bytes: {}'.format(path, directory_size))
 
 
-def recordio_creation(source_path, dest_path, name, image_files, n):
+def recordio_creation(
+    source_path: str,
+    dest_path: str,
+    name: str,
+    image_files: List[str],
+    n: int
+) -> NoReturn:
     combined_path = os.path.join(dest_path, name)
     regex = re.compile(r'\d+')
     dataset_rec = combined_path + str(n) + '.rec'
@@ -271,7 +303,14 @@ def recordio_creation(source_path, dest_path, name, image_files, n):
     recordio_ds.close()
 
 
-def image_creation(combined_path, width, height, seed, image_format, n):
+def image_creation(
+    combined_path: str,
+    width: int,
+    height: int,
+    seed: int,
+    image_format: str,
+    n: int
+) -> NoReturn:
     numpy.random.seed(seed + n)
     a = numpy.random.rand(height, width, 3) * 255
     file_ext = SUPPORTED_IMAGE_FORMATS.get(image_format.lower(), 'png')
@@ -283,7 +322,7 @@ def image_creation(combined_path, width, height, seed, image_format, n):
     im_out.save('%s%d.%s' % (combined_path, n, file_ext))
 
 
-def main():
+def main() -> NoReturn:
     args = parse_args()
     if args.command == STANDARD_IMAGE:
         create_images(args.path, args.name, args.width, args.height,
