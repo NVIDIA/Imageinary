@@ -72,7 +72,9 @@ def check_directory_exists(directory):
 @click.option('--image_format', default='png', required=True)
 @click.option('--seed', default=0)
 @click.option('--size', is_flag=True, default=False)
-def create_images(path, name, width, height, count, image_format, seed, size):
+@click.option('--chunksize', default=64)
+def create_images(path, name, width, height, count, image_format, seed, size,
+                  chunksize):
     click.echo("Creating {} {} files located at {} of {}x{} resolution with a "
                "base filename of {}".format(count, image_format, path, width,
                                             height, name))
@@ -84,9 +86,13 @@ def create_images(path, name, width, height, count, image_format, seed, size):
     pool = Pool()
     try:
         start_time = perf_counter()
+        # NOTE: For very large image counts on memory-constrained systems, this
+        # can stall-out. Either reduce the image count request, or increase the
+        # chunk size.
         pool.starmap(image_creation,
                      ((combined_path, width, height, seed, image_format, n)
-                      for n in range(count)))
+                      for n in range(count)),
+                     chunksize=chunksize)
     finally:
         pool.close()
         pool.join()
