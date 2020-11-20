@@ -22,7 +22,11 @@ requested output format and saved to the specified location.
   * Numpy
   * Click
 
-## Dependency Installation
+## Installation
+The application is available on `nvidia-pyindex` and can be downloaded and
+installed using PIP.
+
+### Virtual Environment
 It is recommended to run this program in a Python virtual environment to avoid
 dependency interference. The virtual environment can be installed and activated
 with:
@@ -33,43 +37,20 @@ virtualenv --python python3 env
 source env/bin/activate
 ```
 
-Next, to install dependencies targetting TensorFlow 2, run:
-
-```bash
-pip install -r requirements.txt
-```
-
-Or, to install dependencies targetting TensorFlow 1.14, run:
-
-```bash
-pip install -r requirements.txt.tf1
-```
-
-Once finished running the code, you can leave the virtual environment with:
+Once finished using the application, you can leave the virtual environment with:
 
 ```bash
 deactivate
 ```
 
-## Building from source
-Imageinary includes a `setup.py` file which makes it easy to build and install
-a binary locally. To build the package, run the following:
+### Pre-install
+Before installing the package, the `nvidia-pyindex` package needs to be
+installed to tell PIP where to look for the package. This needs to be installed
+just once.
 
 ```bash
-python3 setup.py sdist bdist_wheel
+pip install nvidia-pyindex
 ```
-
-This will generate a new package for Imageinary in the `dist/` directory which
-can be installed via `pip`.
-
-```bash
-$ ls dist/
-nvidia-imageinary-1.0.1-py3-none-any.whl nvidia-imageinary-1.0.1.tar.gz
-```
-
-## Installing
-Once the package is built, it can be installed locally with `pip` using a few
-different options depending on your needs.
 
 ### Minimal Install
 The minimal install supports standard image types, such as JPG, PNG, and BMP
