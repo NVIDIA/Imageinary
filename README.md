@@ -112,6 +112,10 @@ and end with an image number starting from 0, such as `random_image_0.jpg`,
 `--size` flag displays information on the images, such as the size of the first
 image and the size of the overall directory.
 
+Note that for creating a very large number of images, systems can easily run out
+of memory. In this case, increase the `--chunksize` to reduce the amount of
+memory allocated by each multiprocessing pool.
+
 ### TFRecords
 TFRecords can also be easily generated using the application. This command
 expects images to be pre-loaded to be used as the basis for the TFRecord files.
