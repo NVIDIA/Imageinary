@@ -29,21 +29,21 @@ class TestUnits:
             pass
 
     def test_directory_creation_if_not_exist(self):
-        imagine.try_create_directory(str(self.tmpdir))
+        imagine._try_create_directory(str(self.tmpdir))
 
     def test_error_input_directory_doesnt_exist(self):
         with pytest.raises(RuntimeError):
-            imagine.check_directory_exists(os.path.join(str(self.tmpdir),
-                                                        'dne'))
+            imagine._check_directory_exists(os.path.join(str(self.tmpdir),
+                                                         'dne'))
 
     def test_record_slice_yields_expected_results(self):
         slices = [range(x, x + 100) for x in range(0, 1000, 100)]
-        results = imagine.record_slice(self.tmpdir,
-                                       self.tmpdir,
-                                       'test_record_',
-                                       range(0, 1000),
-                                       100,
-                                       10)
+        results = imagine._record_slice(self.tmpdir,
+                                        self.tmpdir,
+                                        'test_record_',
+                                        range(0, 1000),
+                                        100,
+                                        10)
 
         for count, result in enumerate(results):
             source, dest, name, images, num = result

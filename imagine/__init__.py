@@ -1,4 +1,4 @@
 from imagine.imagine import (create_images,
                              create_recordio,
                              create_tfrecords,
-                             main)
+                             _main)

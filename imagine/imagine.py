@@ -43,7 +43,7 @@ SUPPORTED_IMAGE_FORMATS = {"jpg": "jpg", "jpeg": "jpg", "bmp": "bmp",
                            "bitmap": "bmp", "png": "png"}
 
 
-def parse_args() -> Namespace:
+def _parse_args() -> Namespace:
     """
     Parse arguments passed to the application.
 
@@ -105,7 +105,7 @@ def parse_args() -> Namespace:
     return parser.parse_args()
 
 
-def try_create_directory(directory: str) -> NoReturn:
+def _try_create_directory(directory: str) -> NoReturn:
     """
     Create a directory if it doesn't exist.
 
@@ -122,7 +122,7 @@ def try_create_directory(directory: str) -> NoReturn:
         os.mkdir(directory)
 
 
-def check_directory_exists(directory: str) -> NoReturn:
+def _check_directory_exists(directory: str) -> NoReturn:
     """
     Check if a directory exists.
 
@@ -195,7 +195,7 @@ def create_images(
     print('Creating {} {} files located at {} of {}x{} resolution with a base '
           'base filename of {}'.format(count, image_format, path, width,
                                        height, name))
-    try_create_directory(path)
+    _try_create_directory(path)
     combined_path = os.path.join(path, name)
 
     # Expected to yield a thread pool equivalent to the number of CPU cores in
@@ -206,7 +206,7 @@ def create_images(
         # NOTE: For very large image counts on memory-constrained systems, this
         # can stall-out. Either reduce the image count request, or increase the
         # chunk size.
-        pool.starmap(image_creation,
+        pool.starmap(_image_creation,
                      ((combined_path, width, height, seed, image_format, n)
                       for n in range(count)),
                      chunksize=chunksize)
@@ -217,12 +217,12 @@ def create_images(
     stop_time = perf_counter()
 
     if size:
-        print_image_information(path)
+        _print_image_information(path)
 
     print('Created {} files in {} seconds'.format(count, stop_time-start_time))
 
 
-def record_slice(
+def _record_slice(
     source_path: str,
     dest_path: str,
     name: str,
@@ -321,10 +321,10 @@ def create_recordio(
     image_files = []
     source_path = os.path.abspath(source_path)
     dest_path = os.path.abspath(dest_path)
-    check_directory_exists(source_path)
-    try_create_directory(dest_path)
+    _check_directory_exists(source_path)
+    _try_create_directory(dest_path)
 
-    print_image_information(source_path)
+    _print_image_information(source_path)
 
     for image_name in os.listdir(source_path):
         if not os.path.isdir(os.path.join(source_path, image_name)):
@@ -334,13 +334,13 @@ def create_recordio(
     pool = Pool()
     try:
         start_time = perf_counter()
-        pool.starmap(recordio_creation,
-                     record_slice(source_path,
-                                  dest_path,
-                                  name,
-                                  image_files,
-                                  img_per_file,
-                                  num_of_records))
+        pool.starmap(_recordio_creation,
+                     _record_slice(source_path,
+                                   dest_path,
+                                   name,
+                                   image_files,
+                                   img_per_file,
+                                   num_of_records))
     finally:
         pool.close()
         pool.join()
@@ -389,11 +389,11 @@ def create_tfrecords(
         raise ImportError('TensorFlow not found! Please install TensorFlow '
                           'dependency using "pip install '
                           'nvidia-imageinary[\'tfrecord\']".')
-    check_directory_exists(source_path)
-    try_create_directory(dest_path)
+    _check_directory_exists(source_path)
+    _try_create_directory(dest_path)
     combined_path = os.path.join(dest_path, name)
 
-    print_image_information(source_path)
+    _print_image_information(source_path)
 
     image_count = 0
     record = 0
@@ -427,7 +427,7 @@ def create_tfrecords(
     print('Completed in {} seconds'.format(stop_time-start_time))
 
 
-def print_image_information(path: str) -> NoReturn:
+def _print_image_information(path: str) -> NoReturn:
     """
     Print the image and directory size.
 
@@ -456,7 +456,7 @@ def print_image_information(path: str) -> NoReturn:
     print('Directory {} size, in bytes: {}'.format(path, directory_size))
 
 
-def recordio_creation(
+def _recordio_creation(
     source_path: str,
     dest_path: str,
     name: str,
@@ -504,7 +504,7 @@ def recordio_creation(
     recordio_ds.close()
 
 
-def image_creation(
+def _image_creation(
     combined_path: str,
     width: int,
     height: int,
@@ -547,14 +547,14 @@ def image_creation(
     im_out.save('%s%d.%s' % (combined_path, n, file_ext))
 
 
-def main() -> NoReturn:
+def _main() -> NoReturn:
     """
     Randomly generate images or record files.
 
     Create standard images or record files using randomized data to be ingested
     into a deep learning application.
     """
-    args = parse_args()
+    args = _parse_args()
     if args.command == STANDARD_IMAGE:
         create_images(args.path, args.name, args.width, args.height,
                       args.count, args.image_format, args.seed, args.size)
