@@ -27,7 +27,6 @@ including JPEGs, PNGs, BMPs, RecordIO, and TFRecord files''',
         'console_scripts': ['imagine=imagine.imagine:main']
     },
     install_requires=[
-        'click >= 7.1.2',
         'numpy >= 1.18.0',
         'Pillow >= 7.1.2'
     ],
