@@ -146,6 +146,49 @@ This command uses the JPEGs created during the previous step and creates
 TFRecords based on those images. The TFRecords will be saved to
 `/mnt/nvme/record_files` where each file will be comprised of 100 JPEGs.
 
+## Importing
+Imageinary can be imported directly by a Python script to hook into a deep
+learning workflow.
+
+To write random images of a specific size to the system, import the library and
+specify the requested parameters:
+
+```python
+from imagine import create_images
+
+create_images('path/to/save/images',  # Path to save images
+              'random_image_prefix_',  # Image name prefix
+              3840,  # Width
+              2160,  # Height
+              1000,  # Number of images to create
+              'png')  # Image format
+```
+
+The above command will save 1000 random PNG images of dimension 3840x2160 to the
+`path/to/save/images` directory, each prefixed with `random_image_prefix_`.
+
+Similary, TFRecords can be generated from Python:
+
+```python
+from imagine import create_tfrecords
+
+create_tfrecords('path/to/saved_images',  # Path to saved images
+                 'path/to/save/tfrecords',  # Path to save TFRecords
+                 'random_tfrecord_',  # TFRecord file prefix
+                 100)  # Number of images per file
+```
+
+As can RecordIO files:
+
+```python
+from imagine import create_recordio
+
+create_recordio('path/to/saved_images',  # Path to saved images
+                'path/to/save/recordio',  # Path to save RecordIO files
+                'random_recordio_',  # RecordIO file prefix
+                100)  # Number of images per file
+```
+
 ## Testing
 This repository includes functional tests for the major modules listed above
 which can be verified locally using `pytest`. While in the virtual environment,

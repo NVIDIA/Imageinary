@@ -24,7 +24,7 @@ including JPEGs, PNGs, BMPs, RecordIO, and TFRecord files''',
     license='Apache v2.0',
     python_requires='>=3.6',
     entry_points={
-        'console_scripts': ['imagine=imagine.imagine:main']
+        'console_scripts': ['imagine=imagine:_main']
     },
     install_requires=[
         'numpy >= 1.18.0',

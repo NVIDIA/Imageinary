@@ -15,7 +15,7 @@ import pytest
 import re
 import os
 from glob import glob
-from imagine.imagine import create_images, create_tfrecords
+from imagine import create_images, create_tfrecords
 from PIL import Image
 
 
