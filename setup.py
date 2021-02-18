@@ -21,7 +21,7 @@ image datasets at various resolutions. The tool supports multiple image types,
 including JPEGs, PNGs, BMPs, RecordIO, and TFRecord files''',
     long_description=long_description,
     packages=find_packages(include=['imagine'], exclude=['tests']),
-    license='Apache v2.0',
+    license='Apache 2.0',
     python_requires='>=3.6',
     entry_points={
         'console_scripts': ['imagine=imagine:_main']
