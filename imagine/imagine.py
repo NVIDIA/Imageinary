@@ -101,7 +101,8 @@ def _parse_args() -> Namespace:
     standard.add_argument('--seed', help='The seed to use while generating '
                           'random image data', type=int, default=0)
     standard.add_argument('--size', help='Display the first image size and '
-                          'the directory size for the images')
+                          'the directory size for the images',
+                          action='store_true')
     return parser.parse_args()
 
 
