@@ -8,7 +8,7 @@ with open('VERSION', 'r') as f:
 
 extras = {
     'tfrecord': ['tensorflow >= 1.14.0,!=2.0.x,!=2.1.x,!=2.2.0'],
-    'mxnet': ['mxnet >= 1.6.0']
+    'mxnet': ['mxnet >= 1.6.0,!=1.8.0']
 }
 
 extras['all'] = [item for group in extras.values() for item in group]
