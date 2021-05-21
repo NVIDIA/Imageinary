@@ -7,7 +7,7 @@ with open('VERSION', 'r') as f:
     version = f.read().strip()
 
 extras = {
-    'tfrecord': ['tensorflow >= 1.14.0,!=2.0.x,!=2.1.x,!=2.2.0'],
+    'tfrecord': ['tensorflow >= 1.14.0,!=2.0.x,!=2.1.x,!=2.2.0,!=2.4.0'],
     'mxnet': ['mxnet >= 1.6.0,!=1.8.0']
 }
 
