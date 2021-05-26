@@ -119,7 +119,6 @@ def _try_create_directory(directory: str) -> NoReturn:
     directory : string
         A ``string`` of a path pointing to a directory to attempt to create.
     """
-    
     os.makedirs(directory, exist_ok=True)
 
 
