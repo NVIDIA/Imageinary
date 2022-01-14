@@ -22,7 +22,7 @@ setup(
     long_description=long_description,
     packages=find_packages(include=['imagine'], exclude=['tests']),
     license='Apache 2.0',
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     entry_points={
         'console_scripts': ['imagine=imagine:_main']
     },
