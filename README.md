@@ -15,7 +15,7 @@ The images are generated using random numpy arrays and are then converted to the
 requested output format and saved to the specified location.
 
 ## Requirements
-  * Python 3.6 or greater
+  * Python 3.7 or greater
   * TensorFlow 2 or TensorFlow 1.14
   * MXNet
   * Pillow
